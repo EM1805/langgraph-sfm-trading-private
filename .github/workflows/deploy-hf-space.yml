@@ -1,0 +1,61 @@
+name: Deploy to Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Hugging Face Hub
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade huggingface_hub
+
+      - name: Upload repo to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }}
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          token = os.environ["HF_TOKEN"]
+          repo_id = os.environ["HF_SPACE_ID"]
+
+          api = HfApi(token=token)
+
+          api.upload_folder(
+              folder_path=".",
+              repo_id=repo_id,
+              repo_type="space",
+              commit_message="Sync from GitHub",
+              ignore_patterns=[
+                  ".git/*",
+                  ".github/*",
+                  ".venv/*",
+                  "__pycache__/*",
+                  "**/__pycache__/*",
+                  "*.pyc",
+                  "*.zip",
+                  ".env",
+                  ".env.*",
+                  "KILL_SWITCH",
+                  "*.jsonl",
+                  "*.log",
+              ],
+          )
+          PY
