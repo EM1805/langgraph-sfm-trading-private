@@ -1,0 +1,1370 @@
+actions:
+  reduce_context_load:
+    description: Reduce context/load pressure before an agent action
+    maps_to:
+      action_type: increase
+      target: context_load
+      magnitude_hint: 0.5
+    domain: agent_safety
+    controllability: high
+    expected_latency: short
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  stabilize_tool_calls:
+    description: Stabilize or reduce risky tool-call volume
+    maps_to:
+      action_type: decrease
+      target: tool_call_rate
+      magnitude_hint: 0.2
+    domain: agent_safety
+    controllability: medium
+    expected_latency: short
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  reduce_environment_risk:
+    description: Reduce environment or operational risk before execution
+    maps_to:
+      action_type: decrease
+      target: environment_risk
+      magnitude_hint: 0.3
+    domain: agent_safety
+    controllability: medium
+    expected_latency: short
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  improve_memory_hits:
+    description: Improve retrieval/memory hit quality before execution
+    maps_to:
+      action_type: increase
+      target: memory_hit_rate
+      magnitude_hint: 0.2
+    domain: agent_safety
+    controllability: medium
+    expected_latency: short
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  search_information:
+    description: Search current information from web or connected knowledge sources
+    action_type: external_read
+    direct_effects:
+    - information_retrieval
+    risk_tags: []
+    reversible: true
+    maps_to:
+      action_type: read
+      target: information_quality
+      magnitude_hint: 0.2
+    domain: agent_tools
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  use_tool:
+    description: Generic tool invocation placeholder; should be replaced by a specific registered tool before production execution
+    action_type: tool_call
+    direct_effects:
+    - generic_tool_call
+    risk_tags:
+    - tool_misuse
+    reversible: true
+    maps_to:
+      action_type: tool_call
+      target: task_success
+      magnitude_hint: 0.1
+    domain: agent_tools
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: unknown
+    risk_level: medium
+  reduce_campaign_intensity:
+    description: Reduce campaign intensity
+    maps_to:
+      action_type: decrease
+      target: campaign_intensity
+      magnitude_hint: 0.2
+    domain: growth
+    controllability: high
+    expected_latency: short
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  send_email_external:
+    description: Send an email to an external recipient
+    action_type: communication
+    direct_effects:
+    - external_send
+    risk_tags:
+    - leakage
+    - reputation
+    reversible: false
+    default_params:
+      recipient_scope: external
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: external
+    risk_level: medium
+  send_email_internal:
+    description: Send an email to an internal recipient
+    action_type: communication
+    direct_effects:
+    - internal_send
+    risk_tags: []
+    reversible: false
+    default_params:
+      recipient_scope: internal
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: external
+    risk_level: low
+  share_file_external:
+    description: Share a file or link outside the trusted boundary
+    action_type: sharing
+    direct_effects:
+    - external_share
+    risk_tags:
+    - leakage
+    reversible: false
+    default_params:
+      share_scope: external
+    maps_to:
+      action_type: sharing
+      target: harm_event
+      magnitude_hint: 0.0
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: external
+    risk_level: medium
+  change_permissions:
+    description: Change access permissions for a resource
+    action_type: admin
+    direct_effects:
+    - permission_change
+    risk_tags:
+    - access
+    reversible: true
+    maps_to:
+      action_type: admin
+      target: environment_risk
+      magnitude_hint: 0.0
+    allowed_modes:
+    - code_agent
+    - finance_trading_agent
+    - general_agent
+    - ops_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  delete_resource:
+    description: Delete or overwrite a resource
+    action_type: mutation
+    direct_effects:
+    - destructive_write
+    - delete_resource
+    risk_tags:
+    - data_loss
+    reversible: false
+    maps_to:
+      action_type: mutation
+      target: harm_event
+      magnitude_hint: 0.0
+    allowed_modes:
+    - ops_agent
+    autonomous_allowed: false
+    side_effect_level: system_change
+    risk_level: critical
+    recommended_alternative: archive_or_backup_then_request_approval
+  deploy_config_change:
+    description: Deploy configuration change
+    action_type: ops
+    direct_effects:
+    - configuration_change
+    - service_change
+    risk_tags:
+    - stability
+    reversible: true
+    maps_to:
+      action_type: ops
+      target: environment_risk
+      magnitude_hint: 0.0
+    allowed_modes:
+    - ops_agent
+    autonomous_allowed: true
+    side_effect_level: system_change
+    risk_level: high
+  bypass_approval:
+    description: Skip approval or policy control
+    action_type: governance
+    direct_effects:
+    - bypass_control
+    - suppress_review
+    risk_tags:
+    - compliance
+    reversible: false
+    maps_to:
+      action_type: governance
+      target: environment_risk
+      magnitude_hint: 0.0
+  read_file:
+    description: Read a local or remote file.
+    action_type: read
+    domain: agent_tools
+    direct_effects:
+    - file_read
+    - data_access
+    risk_tags:
+    - privacy
+    - data_exposure
+    reversible: true
+    requires_approval: false
+    default_params:
+      resource_sensitivity: unknown
+      data_classification: unknown
+    maps_to:
+      action_type: read
+      target: information_exposure_risk
+      magnitude_hint: 0.1
+    allowed_modes:
+    - code_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  write_file:
+    description: Create or modify a file.
+    action_type: mutation
+    domain: agent_tools
+    direct_effects:
+    - file_write
+    - data_mutation
+    risk_tags:
+    - data_integrity
+    - data_loss
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      rollback_available: false
+      resource_sensitivity: unknown
+    maps_to:
+      action_type: mutation
+      target: data_integrity_risk
+      magnitude_hint: 0.3
+    allowed_modes:
+    - code_agent
+    autonomous_allowed: true
+    side_effect_level: state_change
+    risk_level: medium
+  delete_file:
+    description: Delete a file.
+    action_type: mutation
+    domain: agent_tools
+    direct_effects:
+    - destructive_write
+    - delete_resource
+    risk_tags:
+    - data_loss
+    reversible: false
+    requires_approval: true
+    default_params:
+      rollback_available: false
+      resource_sensitivity: high
+    maps_to:
+      action_type: mutation
+      target: harm_event
+      magnitude_hint: 0.8
+    allowed_modes:
+    - code_agent
+    autonomous_allowed: false
+    side_effect_level: state_change
+    risk_level: high
+    recommended_alternative: backup_file_then_request_approval
+  modify_database:
+    description: Insert, update, delete, or migrate database records/schema.
+    action_type: mutation
+    domain: agent_tools
+    direct_effects:
+    - database_write
+    - data_mutation
+    risk_tags:
+    - data_integrity
+    - data_loss
+    - compliance
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      rollback_available: false
+      blast_radius: high
+      resource_sensitivity: high
+    maps_to:
+      action_type: mutation
+      target: data_integrity_risk
+      magnitude_hint: 0.7
+    allowed_modes:
+    - ops_agent
+    autonomous_allowed: false
+    side_effect_level: system_change
+    risk_level: high
+    recommended_alternative: create_migration_plan_and_request_approval
+  run_shell_command:
+    description: Execute an operating-system shell command.
+    action_type: code_execution
+    domain: agent_tools
+    direct_effects:
+    - code_execution
+    - system_mutation
+    risk_tags:
+    - code_execution
+    - privilege
+    - data_loss
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      rollback_available: false
+      blast_radius: high
+    maps_to:
+      action_type: code_execution
+      target: environment_risk
+      magnitude_hint: 0.8
+    allowed_modes:
+    - code_agent
+    - ops_agent
+    autonomous_allowed: false
+    side_effect_level: system_change
+    risk_level: high
+    recommended_alternative: propose_command_for_review
+  execute_code:
+    description: Execute generated or retrieved code.
+    action_type: code_execution
+    domain: agent_tools
+    direct_effects:
+    - code_execution
+    risk_tags:
+    - code_execution
+    - sandbox_escape
+    - data_exposure
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      rollback_available: false
+      blast_radius: medium
+    maps_to:
+      action_type: code_execution
+      target: environment_risk
+      magnitude_hint: 0.6
+    allowed_modes:
+    - code_agent
+    - ops_agent
+    autonomous_allowed: true
+    side_effect_level: system_change
+    risk_level: high
+  call_api:
+    description: Call an external API.
+    action_type: external_call
+    domain: agent_tools
+    direct_effects:
+    - external_call
+    - data_transfer
+    risk_tags:
+    - leakage
+    - third_party_side_effect
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      recipient_scope: external
+      share_scope: external
+    maps_to:
+      action_type: external_call
+      target: harm_event
+      magnitude_hint: 0.4
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: external
+    risk_level: medium
+  access_secret:
+    description: Read, expose, or use a secret, API key, token, or credential.
+    action_type: credential_access
+    domain: agent_tools
+    direct_effects:
+    - secret_access
+    - credential_exposure
+    risk_tags:
+    - credential_leakage
+    - privilege
+    reversible: false
+    requires_approval: true
+    default_params:
+      resource_sensitivity: critical
+      data_classification: secret
+    maps_to:
+      action_type: credential_access
+      target: harm_credential_exposure
+      magnitude_hint: 0.9
+    allowed_modes:
+    - ops_agent
+    autonomous_allowed: false
+    side_effect_level: system_change
+    risk_level: critical
+  deploy_code:
+    description: Deploy application code or infrastructure changes.
+    action_type: ops
+    domain: agent_tools
+    direct_effects:
+    - code_deploy
+    - service_change
+    risk_tags:
+    - stability
+    - security
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      rollback_available: false
+      blast_radius: high
+    maps_to:
+      action_type: ops
+      target: environment_risk
+      magnitude_hint: 0.8
+    allowed_modes:
+    - ops_agent
+    autonomous_allowed: false
+    side_effect_level: system_change
+    risk_level: high
+    recommended_alternative: deploy_to_staging_or_request_production_approval
+  install_package:
+    description: Install or update a software package/dependency.
+    action_type: dependency_change
+    domain: agent_tools
+    direct_effects:
+    - dependency_change
+    - code_execution
+    risk_tags:
+    - supply_chain
+    - code_execution
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      rollback_available: false
+      blast_radius: medium
+    maps_to:
+      action_type: dependency_change
+      target: environment_risk
+      magnitude_hint: 0.5
+    allowed_modes:
+    - code_agent
+    - ops_agent
+    autonomous_allowed: true
+    side_effect_level: system_change
+    risk_level: high
+  browse_web:
+    description: Browse or retrieve content from the web.
+    action_type: external_read
+    domain: agent_tools
+    direct_effects:
+    - web_request
+    - external_call
+    risk_tags:
+    - prompt_injection
+    - untrusted_content
+    reversible: true
+    requires_approval: false
+    default_params:
+      recipient_scope: external
+    maps_to:
+      action_type: external_read
+      target: context_integrity_risk
+      magnitude_hint: 0.2
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: external
+    risk_level: low
+  write_memory:
+    description: Persist information to agent memory.
+    action_type: memory_write
+    domain: agent_memory
+    direct_effects:
+    - memory_write
+    - long_term_state_change
+    risk_tags:
+    - privacy
+    - persistence
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      rollback_available: true
+      resource_sensitivity: unknown
+    maps_to:
+      action_type: memory_write
+      target: memory_integrity_risk
+      magnitude_hint: 0.4
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  retrieve_memory:
+    description: Retrieve information from agent memory.
+    action_type: memory_read
+    domain: agent_memory
+    direct_effects:
+    - memory_read
+    - data_access
+    risk_tags:
+    - privacy
+    reversible: true
+    requires_approval: false
+    default_params:
+      resource_sensitivity: unknown
+    maps_to:
+      action_type: memory_read
+      target: information_exposure_risk
+      magnitude_hint: 0.2
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  erase_memory:
+    description: Delete or overwrite agent memory.
+    action_type: memory_mutation
+    domain: agent_memory
+    direct_effects:
+    - memory_delete
+    - destructive_write
+    risk_tags:
+    - data_loss
+    - user_trust
+    reversible: false
+    requires_approval: true
+    default_params:
+      rollback_available: false
+      resource_sensitivity: high
+    maps_to:
+      action_type: memory_mutation
+      target: memory_integrity_risk
+      magnitude_hint: 0.7
+  create_calendar_event:
+    description: Create or modify a calendar event.
+    action_type: scheduling
+    domain: agent_tools
+    direct_effects:
+    - calendar_write
+    - user_commitment_change
+    risk_tags:
+    - user_commitment
+    - privacy
+    reversible: true
+    requires_approval: conditional
+    default_params:
+      rollback_available: true
+    maps_to:
+      action_type: scheduling
+      target: user_commitment_risk
+      magnitude_hint: 0.3
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  view_account_balance:
+    description: View account balances or portfolio state.
+    action_type: financial_read
+    domain: finance
+    direct_effects:
+    - financial_data_access
+    - data_access
+    risk_tags:
+    - financial_privacy
+    reversible: true
+    requires_approval: false
+    default_params:
+      financial_action: true
+      resource_sensitivity: high
+      data_classification: financial
+    maps_to:
+      action_type: financial_read
+      target: financial_privacy_risk
+      magnitude_hint: 0.2
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: low
+  access_financial_data:
+    description: Access bank, broker, payment, invoice, or portfolio data.
+    action_type: financial_read
+    domain: finance
+    direct_effects:
+    - financial_data_access
+    - data_access
+    risk_tags:
+    - financial_privacy
+    - compliance
+    reversible: true
+    requires_approval: conditional
+    default_params:
+      financial_action: true
+      resource_sensitivity: high
+      data_classification: financial
+    maps_to:
+      action_type: financial_read
+      target: financial_privacy_risk
+      magnitude_hint: 0.3
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: true
+    side_effect_level: none
+    risk_level: medium
+  initiate_bank_transfer:
+    description: Initiate a bank transfer or wire payment.
+    action_type: financial_transfer
+    domain: finance
+    direct_effects:
+    - financial_transfer
+    - money_movement
+    risk_tags:
+    - irreversible_money_movement
+    - fraud
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      financial_action: true
+      real_money: true
+      approval_present: false
+      rollback_available: false
+      resource_sensitivity: critical
+      notional_amount_known: false
+    maps_to:
+      action_type: financial_transfer
+      target: financial_loss_risk
+      magnitude_hint: 0.95
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: prepare_transfer_for_review
+  withdraw_funds:
+    description: Withdraw money from a financial, trading, or payment account.
+    action_type: financial_transfer
+    domain: finance
+    direct_effects:
+    - financial_transfer
+    - money_movement
+    - account_withdrawal
+    risk_tags:
+    - irreversible_money_movement
+    - fraud
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      financial_action: true
+      real_money: true
+      approval_present: false
+      rollback_available: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: financial_transfer
+      target: financial_loss_risk
+      magnitude_hint: 0.95
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: prepare_withdrawal_for_review
+  approve_invoice_payment:
+    description: Approve or release an invoice payment.
+    action_type: financial_transfer
+    domain: finance
+    direct_effects:
+    - financial_transfer
+    - money_movement
+    risk_tags:
+    - irreversible_money_movement
+    - vendor_fraud
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      financial_action: true
+      real_money: true
+      approval_present: false
+      rollback_available: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: financial_transfer
+      target: financial_loss_risk
+      magnitude_hint: 0.9
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: draft_invoice_payment_for_review
+  charge_customer:
+    description: Charge a customer payment method.
+    action_type: payment_mutation
+    domain: finance
+    direct_effects:
+    - payment_charge
+    - money_movement
+    risk_tags:
+    - customer_harm
+    - compliance
+    - reputation
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      financial_action: true
+      real_money: true
+      approval_present: false
+      rollback_available: true
+      resource_sensitivity: critical
+    maps_to:
+      action_type: payment_mutation
+      target: financial_or_customer_harm_risk
+      magnitude_hint: 0.8
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: draft_charge_for_review
+  refund_payment:
+    description: Refund a payment to a customer or counterparty.
+    action_type: payment_mutation
+    domain: finance
+    direct_effects:
+    - payment_refund
+    - money_movement
+    risk_tags:
+    - financial_loss
+    - fraud
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      financial_action: true
+      real_money: true
+      rollback_available: false
+      resource_sensitivity: high
+    maps_to:
+      action_type: payment_mutation
+      target: financial_loss_risk
+      magnitude_hint: 0.65
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  issue_payout:
+    description: Send funds to a user, contractor, merchant, or external account.
+    action_type: financial_transfer
+    domain: finance
+    direct_effects:
+    - financial_transfer
+    - money_movement
+    risk_tags:
+    - irreversible_money_movement
+    - fraud
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      financial_action: true
+      real_money: true
+      approval_present: false
+      rollback_available: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: financial_transfer
+      target: financial_loss_risk
+      magnitude_hint: 0.9
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: draft_payout_for_review
+  connect_brokerage_api:
+    description: Connect, authorize, or change credentials for a brokerage/trading
+      API.
+    action_type: credential_access
+    domain: trading
+    direct_effects:
+    - brokerage_access
+    - secret_access
+    - credential_exposure
+    risk_tags:
+    - credential_leakage
+    - unauthorized_trading
+    - financial_loss
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      financial_action: true
+      trading_action: true
+      resource_sensitivity: critical
+      data_classification: secret
+    maps_to:
+      action_type: credential_access
+      target: unauthorized_trading_risk
+      magnitude_hint: 0.9
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  place_market_order:
+    description: Place a live market order for a security, cryptoasset, FX pair, derivative,
+      or other tradable instrument.
+    action_type: trade_execution
+    domain: trading
+    direct_effects:
+    - trade_execution
+    - market_order
+    risk_tags:
+    - market_risk
+    - slippage
+    - financial_loss
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      real_money: true
+      live_trading: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: trade_execution
+      target: financial_loss_risk
+      magnitude_hint: 0.95
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: paper_trade_limit_order
+  place_limit_order:
+    description: Place a live limit order.
+    action_type: trade_execution
+    domain: trading
+    direct_effects:
+    - trade_execution
+    - limit_order
+    risk_tags:
+    - market_risk
+    - financial_loss
+    - compliance
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      real_money: true
+      live_trading: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: trade_execution
+      target: financial_loss_risk
+      magnitude_hint: 0.85
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+    recommended_alternative: paper_trade_limit_order
+  cancel_order:
+    description: Cancel an existing order.
+    action_type: trade_order_management
+    domain: trading
+    direct_effects:
+    - order_cancel
+    risk_tags:
+    - execution_risk
+    reversible: conditional
+    requires_approval: conditional
+    default_params:
+      trading_action: true
+      financial_action: true
+      live_trading: true
+      rollback_available: false
+      resource_sensitivity: high
+    maps_to:
+      action_type: trade_order_management
+      target: execution_risk
+      magnitude_hint: 0.4
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  modify_order:
+    description: Modify price, quantity, timing, or conditions of an existing order.
+    action_type: trade_order_management
+    domain: trading
+    direct_effects:
+    - order_modify
+    - trade_execution
+    risk_tags:
+    - market_risk
+    - financial_loss
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      live_trading: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: trade_order_management
+      target: financial_loss_risk
+      magnitude_hint: 0.8
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  close_position:
+    description: Close a live trading position.
+    action_type: trade_execution
+    domain: trading
+    direct_effects:
+    - trade_execution
+    - position_close
+    risk_tags:
+    - market_risk
+    - financial_loss
+    - tax_or_accounting
+    reversible: false
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      real_money: true
+      live_trading: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: trade_execution
+      target: financial_loss_risk
+      magnitude_hint: 0.85
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  open_margin_position:
+    description: Open a leveraged or margin trading position.
+    action_type: leveraged_trade_execution
+    domain: trading
+    direct_effects:
+    - trade_execution
+    - leveraged_trade
+    - margin_exposure
+    risk_tags:
+    - leverage
+    - liquidation
+    - financial_loss
+    - compliance
+    reversible: false
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      real_money: true
+      live_trading: true
+      leverage_used: true
+      margin_used: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: leveraged_trade_execution
+      target: financial_loss_risk
+      magnitude_hint: 0.99
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: paper_trade_limit_order
+  set_stop_loss:
+    description: Create or modify a stop-loss or risk-control order.
+    action_type: risk_control
+    domain: trading
+    direct_effects:
+    - risk_limit_change
+    - order_modify
+    risk_tags:
+    - execution_risk
+    - market_risk
+    reversible: true
+    requires_approval: conditional
+    default_params:
+      trading_action: true
+      financial_action: true
+      live_trading: true
+      rollback_available: true
+      risk_limits_present: true
+      resource_sensitivity: high
+    maps_to:
+      action_type: risk_control
+      target: execution_risk
+      magnitude_hint: 0.35
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: high
+  change_trading_risk_limits:
+    description: Change trading limits, max order size, margin, leverage, or risk
+      caps.
+    action_type: risk_policy_change
+    domain: trading
+    direct_effects:
+    - risk_limit_change
+    - policy_change
+    risk_tags:
+    - financial_loss
+    - compliance
+    - policy_bypass
+    reversible: conditional
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: risk_policy_change
+      target: financial_loss_risk
+      magnitude_hint: 0.9
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+  rebalance_portfolio:
+    description: Buy/sell instruments to rebalance a portfolio.
+    action_type: portfolio_mutation
+    domain: trading
+    direct_effects:
+    - portfolio_rebalance
+    - trade_execution
+    risk_tags:
+    - market_risk
+    - financial_loss
+    - tax_or_accounting
+    reversible: false
+    requires_approval: true
+    default_params:
+      trading_action: true
+      financial_action: true
+      real_money: true
+      live_trading: true
+      approval_present: false
+      rollback_available: false
+      risk_limits_present: false
+      notional_amount_known: false
+      resource_sensitivity: critical
+    maps_to:
+      action_type: portfolio_mutation
+      target: financial_loss_risk
+      magnitude_hint: 0.9
+    allowed_modes:
+    - finance_trading_agent
+    autonomous_allowed: false
+    side_effect_level: money_or_market
+    risk_level: critical
+    recommended_alternative: portfolio_rebalance_plan_only
+  ask_clarification:
+    description: Ask Clarification communication action.
+    action_type: communication
+    domain: general
+    risk_level: low
+    reversible: true
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    requires_approval: false
+    autonomous_allowed: true
+    side_effect_level: none
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+  abstain:
+    description: Abstain communication action.
+    action_type: communication
+    domain: general
+    risk_level: low
+    reversible: true
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    requires_approval: false
+    autonomous_allowed: true
+    side_effect_level: none
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+  answer_directly:
+    description: Answer Directly communication action.
+    action_type: communication
+    domain: general
+    risk_level: low
+    reversible: true
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    requires_approval: false
+    autonomous_allowed: true
+    side_effect_level: none
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+  explain_block:
+    description: Explain Block communication action.
+    action_type: communication
+    domain: general
+    risk_level: low
+    reversible: true
+    allowed_modes:
+    - general_agent
+    - code_agent
+    - ops_agent
+    - finance_trading_agent
+    requires_approval: false
+    autonomous_allowed: true
+    side_effect_level: none
+    maps_to:
+      action_type: communication
+      target: harm_event
+      magnitude_hint: 0.0
+  paper_trade_limit_order:
+    description: Create a simulated paper-trading limit order; no live money or broker
+      execution.
+    action_type: trade_execution
+    domain: trading
+    direct_effects:
+    - paper_trade
+    - simulation_only
+    risk_tags:
+    - market_simulation
+    reversible: true
+    requires_approval: false
+    risk_level: low
+    autonomous_allowed: true
+    side_effect_level: simulation_only
+    allowed_modes:
+    - finance_trading_agent
+    default_params:
+      trading_action: true
+      financial_action: true
+      paper_trading: true
+      live_trading: false
+      real_money: false
+      risk_limits_present: true
+      notional_amount_known: true
+    maps_to:
+      action_type: trade_execution
+      target: paper_trading_risk
+      magnitude_hint: 0.25
+  read_file_safe:
+    description: Read a file through the sandbox executor inside the configured root.
+    action_type: read
+    domain: agent_tools
+    direct_effects:
+    - file_read
+    - sandboxed_read
+    risk_tags:
+    - privacy
+    reversible: true
+    requires_approval: false
+    risk_level: low
+    autonomous_allowed: true
+    side_effect_level: none
+    allowed_modes:
+    - code_agent
+    default_params:
+      sandbox_required: true
+      source_files_modified: false
+    maps_to:
+      action_type: read
+      target: information_quality
+      magnitude_hint: 0.1
+  write_draft_file:
+    description: Write a draft file under out/agent_drafts without mutating source files.
+    action_type: mutation
+    domain: agent_tools
+    direct_effects:
+    - draft_file_write
+    - sandboxed_write
+    risk_tags:
+    - data_integrity
+    reversible: true
+    requires_approval: false
+    risk_level: medium
+    autonomous_allowed: true
+    side_effect_level: state_change
+    allowed_modes:
+    - code_agent
+    default_params:
+      sandbox_required: true
+      source_files_modified: false
+      rollback_available: true
+    maps_to:
+      action_type: mutation
+      target: draft_quality
+      magnitude_hint: 0.2
+  run_tests_sandbox:
+    description: Run pytest in a bounded sandbox subprocess; shell metacharacters and arbitrary commands are blocked.
+    action_type: code_execution
+    domain: agent_tools
+    direct_effects:
+    - sandboxed_test_execution
+    risk_tags:
+    - code_execution
+    reversible: true
+    requires_approval: false
+    risk_level: medium
+    autonomous_allowed: true
+    side_effect_level: sandboxed_process
+    allowed_modes:
+    - code_agent
+    default_params:
+      sandbox_required: true
+      command_allowlist: pytest
+    maps_to:
+      action_type: code_execution
+      target: test_feedback_quality
+      magnitude_hint: 0.25
+  paper_trade_order:
+    description: Record a simulated paper-trade order only; no broker, no live market order and no real money.
+    action_type: trade_execution
+    domain: trading
+    direct_effects:
+    - paper_trade
+    - simulation_only
+    risk_tags:
+    - market_simulation
+    reversible: true
+    requires_approval: false
+    risk_level: low
+    autonomous_allowed: true
+    side_effect_level: simulation_only
+    allowed_modes:
+    - finance_trading_agent
+    default_params:
+      trading_action: true
+      financial_action: true
+      paper_trading: true
+      live_trading: false
+      real_money: false
+      risk_limits_present: true
+      notional_amount_known: true
+    maps_to:
+      action_type: trade_execution
+      target: paper_trading_risk
+      magnitude_hint: 0.25

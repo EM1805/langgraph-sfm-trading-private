@@ -1,0 +1,610 @@
+meta:
+  name: amantia_action_risk_graph
+  version: 0.3
+  description: Operational causal graph for action-level danger veto with explicit treatment, confounder, mediator, collider, outcome, and policy node semantics.
+defaults:
+  observed: true
+  intervenable: false
+  adjustable: false
+  allowed_as_adjustment: auto
+  time_role: concurrent
+  aliases: []
+nodes:
+- id: external_send
+  type: action_effect
+  aliases: [send_email_external, email_external, external_email]
+  observed: true
+  intervenable: false
+  adjustable: false
+  time_role: post_treatment
+- id: external_share
+  type: action_effect
+  aliases: [share_file_external, share_external]
+  observed: true
+  intervenable: false
+  adjustable: false
+  time_role: post_treatment
+- id: permission_change
+  type: action_effect
+  aliases: [change_permissions]
+  observed: true
+  time_role: post_treatment
+- id: credential_rotation
+  type: action_effect
+  observed: true
+  time_role: post_treatment
+- id: destructive_write
+  type: action_effect
+  observed: true
+  time_role: post_treatment
+- id: delete_resource
+  type: action_effect
+  aliases: [delete_action]
+  observed: true
+  time_role: post_treatment
+- id: configuration_change
+  type: action_effect
+  aliases: [deploy_config_change]
+  observed: true
+  time_role: post_treatment
+- id: service_change
+  type: action_effect
+  aliases: [service_rollout]
+  observed: true
+  time_role: post_treatment
+- id: bypass_control
+  type: action_effect
+  aliases: [bypass_approval]
+  observed: true
+  time_role: post_treatment
+- id: suppress_review
+  type: action_effect
+  aliases: [skip_review]
+  observed: true
+  time_role: post_treatment
+
+# --- path-level treatments for the 3 main veto paths ---
+- id: recipient_scope
+  type: treatment
+  aliases: [recipient_externality, external_recipient_scope]
+  observed: true
+  intervenable: true
+  adjustable: false
+  time_role: baseline
+- id: rollback_available
+  type: treatment
+  aliases: [recovery_available, rollback_ready]
+  observed: true
+  intervenable: true
+  adjustable: false
+  time_role: baseline
+- id: novel_action
+  type: treatment
+  aliases: [change_novelty, novel_action_rate, novelty_rate, reduce_novel_actions]
+  observed: true
+  intervenable: true
+  adjustable: false
+  time_role: baseline
+
+# --- shared confounders / context ---
+- id: action_family
+  type: confounder
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: environment
+  type: confounder
+  aliases: [execution_environment, environment_risk, execution_risk]
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: resource_sensitivity
+  type: confounder
+  aliases: [sensitivity, data_sensitivity]
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: approval_present
+  type: confounder
+  aliases: [human_approval, approval_status]
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: attachment_present
+  type: confounder
+  aliases: [has_attachment]
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: blast_radius
+  type: confounder
+  aliases: [change_scope, impact_scope, affected_scope]
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: service_criticality
+  type: confounder
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+- id: user_role
+  type: confounder
+  observed: true
+  adjustable: true
+  allowed_as_adjustment: true
+  time_role: baseline
+
+# --- mediators for leakage path ---
+- id: disclosure_surface
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: external_boundary_crossed
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: sensitive_payload_exposed
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- mediators for destructive mutation path ---
+- id: capability_surface_change
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: unauthorized_capability
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: data_mutation
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: rollback_failure
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: recovery_gap
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- mediators for operational failure path ---
+- id: change_complexity
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: service_instability
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: rollback_delay
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- governance / policy path ---
+- id: governance_bypass
+  type: mediator
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- colliders / detection-only nodes: useful to mark as forbidden for adjustment ---
+- id: incident_investigated
+  type: collider
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: alert_generated
+  type: collider
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: manual_review_triggered
+  type: collider
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- harms ---
+- id: harm_leakage
+  type: harm
+  severity: critical
+  aliases: [data_leakage, leakage, harm_event, target, incident, safety_incident]
+- id: harm_unauthorized_access
+  type: harm
+  severity: high
+  aliases: [unauthorized_access]
+- id: harm_data_loss
+  type: harm
+  severity: critical
+  aliases: [data_loss]
+- id: harm_operational_failure
+  type: harm
+  severity: medium
+  aliases: [operational_failure, outage]
+- id: harm_policy_bypass
+  type: harm
+  severity: high
+  aliases: [policy_bypass]
+
+# --- aggregate discovery outcome bridge ---
+# Keeps the runtime harm taxonomy compatible with the offline discovery DAG,
+# whose canonical target is harm_event. Specific operational harms remain the
+# preferred runtime outcomes; harm_event is the aggregate alias/outcome used by
+# discovery, estimation, and graph-identification smoke checks.
+- id: harm_event
+  type: harm
+  severity: high
+  aliases: [target, incident, safety_incident, aggregate_harm]
+  observed: true
+  intervenable: false
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+# --- negative controls / policy outputs kept separate from causal core ---
+- id: cosmetic_metadata_change
+  type: negative_control
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: dry_run_flag
+  type: negative_control
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+- id: policy_decision
+  type: policy
+  observed: true
+  adjustable: false
+  allowed_as_adjustment: false
+  time_role: post_treatment
+
+edges:
+# --- leakage mini-DAG ---
+- source: action_family
+  target: recipient_scope
+  kind: causal
+  confidence: medium
+- source: environment
+  target: recipient_scope
+  kind: contextual
+  confidence: medium
+- source: resource_sensitivity
+  target: recipient_scope
+  kind: contextual
+  confidence: low
+- source: approval_present
+  target: recipient_scope
+  kind: governance
+  confidence: medium
+- source: attachment_present
+  target: sensitive_payload_exposed
+  kind: causal
+  confidence: high
+- source: recipient_scope
+  target: external_send
+  kind: causal
+  confidence: high
+- source: recipient_scope
+  target: external_share
+  kind: causal
+  confidence: high
+- source: resource_sensitivity
+  target: sensitive_payload_exposed
+  kind: causal
+  confidence: high
+- source: external_send
+  target: disclosure_surface
+  kind: causal
+  confidence: high
+- source: external_share
+  target: disclosure_surface
+  kind: causal
+  confidence: high
+- source: disclosure_surface
+  target: external_boundary_crossed
+  kind: causal
+  confidence: high
+- source: external_boundary_crossed
+  target: sensitive_payload_exposed
+  kind: causal
+  confidence: high
+- source: sensitive_payload_exposed
+  target: harm_leakage
+  kind: causal
+  confidence: high
+
+# --- unauthorized access path ---
+- source: permission_change
+  target: capability_surface_change
+  kind: causal
+  confidence: high
+- source: credential_rotation
+  target: capability_surface_change
+  kind: causal
+  confidence: medium
+- source: capability_surface_change
+  target: unauthorized_capability
+  kind: causal
+  confidence: medium
+- source: unauthorized_capability
+  target: harm_unauthorized_access
+  kind: causal
+  confidence: medium
+
+# --- destructive mutation mini-DAG ---
+- source: action_family
+  target: rollback_available
+  kind: contextual
+  confidence: medium
+- source: environment
+  target: rollback_available
+  kind: contextual
+  confidence: medium
+- source: blast_radius
+  target: rollback_available
+  kind: contextual
+  confidence: medium
+- source: resource_sensitivity
+  target: rollback_available
+  kind: contextual
+  confidence: low
+- source: approval_present
+  target: destructive_write
+  kind: governance
+  confidence: low
+- source: rollback_available
+  target: recovery_gap
+  kind: causal
+  confidence: high
+- source: delete_resource
+  target: data_mutation
+  kind: causal
+  confidence: high
+- source: destructive_write
+  target: data_mutation
+  kind: causal
+  confidence: high
+- source: data_mutation
+  target: rollback_failure
+  kind: causal
+  confidence: medium
+- source: recovery_gap
+  target: rollback_failure
+  kind: causal
+  confidence: high
+- source: rollback_failure
+  target: harm_data_loss
+  kind: causal
+  confidence: high
+
+# --- operational failure mini-DAG ---
+- source: action_family
+  target: novel_action
+  kind: contextual
+  confidence: medium
+- source: environment
+  target: novel_action
+  kind: contextual
+  confidence: medium
+- source: service_criticality
+  target: novel_action
+  kind: contextual
+  confidence: low
+- source: blast_radius
+  target: change_complexity
+  kind: contextual
+  confidence: medium
+- source: approval_present
+  target: novel_action
+  kind: governance
+  confidence: low
+- source: novel_action
+  target: change_complexity
+  kind: causal
+  confidence: high
+- source: configuration_change
+  target: change_complexity
+  kind: causal
+  confidence: high
+- source: service_change
+  target: change_complexity
+  kind: causal
+  confidence: medium
+- source: change_complexity
+  target: service_instability
+  kind: causal
+  confidence: high
+- source: rollback_available
+  target: rollback_delay
+  kind: causal
+  confidence: medium
+- source: service_instability
+  target: rollback_delay
+  kind: causal
+  confidence: medium
+- source: rollback_delay
+  target: harm_operational_failure
+  kind: causal
+  confidence: medium
+- source: service_instability
+  target: harm_operational_failure
+  kind: causal
+  confidence: high
+
+# --- governance / policy ---
+- source: bypass_control
+  target: governance_bypass
+  kind: causal
+  confidence: high
+- source: suppress_review
+  target: governance_bypass
+  kind: causal
+  confidence: high
+- source: governance_bypass
+  target: harm_policy_bypass
+  kind: causal
+  confidence: high
+
+# --- aggregate discovery outcome bridge ---
+- source: harm_leakage
+  target: harm_event
+  kind: aggregate_outcome
+  confidence: high
+- source: harm_unauthorized_access
+  target: harm_event
+  kind: aggregate_outcome
+  confidence: high
+- source: harm_data_loss
+  target: harm_event
+  kind: aggregate_outcome
+  confidence: high
+- source: harm_operational_failure
+  target: harm_event
+  kind: aggregate_outcome
+  confidence: high
+- source: harm_policy_bypass
+  target: harm_event
+  kind: aggregate_outcome
+  confidence: high
+
+# --- detection / collider / policy nodes (not causal targets for adjustment) ---
+- source: harm_leakage
+  target: alert_generated
+  kind: detection
+  confidence: medium
+- source: harm_data_loss
+  target: incident_investigated
+  kind: detection
+  confidence: medium
+- source: harm_operational_failure
+  target: manual_review_triggered
+  kind: detection
+  confidence: medium
+- source: governance_bypass
+  target: manual_review_triggered
+  kind: detection
+  confidence: low
+- source: alert_generated
+  target: policy_decision
+  kind: policy
+  confidence: low
+- source: manual_review_triggered
+  target: policy_decision
+  kind: policy
+  confidence: low
+
+path_hints:
+  harm_event:
+    path_id: aggregate_agent_harm
+    treatment_node: novel_action
+    contrast_key: novel_action
+    treated_value: true
+    control_value: false
+    outcome_node: harm_event
+    preferred_stratum_keys: [action_family, environment, approval_present, blast_radius]
+    adjust_for: [action_family, environment, approval_present, blast_radius]
+    avoid: [harm_leakage, harm_unauthorized_access, harm_data_loss, harm_operational_failure, harm_policy_bypass, alert_generated, manual_review_triggered, policy_decision]
+    mediators: []
+    colliders: [alert_generated, manual_review_triggered, incident_investigated]
+    negative_controls: [dry_run_flag, cosmetic_metadata_change]
+    alternative_explanations: [mixed_harm_taxonomy, confounding_via_environment, confounding_via_blast_radius]
+    notes: Aggregate compatibility outcome for offline discovery target harm_event; prefer specific harm_* path hints for runtime veto decisions.
+  harm_leakage:
+    path_id: external_data_leakage
+    treatment_node: recipient_scope
+    contrast_key: recipient_scope
+    treated_value: external
+    control_value: internal
+    outcome_node: harm_leakage
+    preferred_stratum_keys: [action_family, environment, resource_sensitivity, approval_present, attachment_present]
+    adjust_for: [action_family, environment, resource_sensitivity, approval_present, attachment_present]
+    avoid: [external_send, external_share, disclosure_surface, external_boundary_crossed, sensitive_payload_exposed, alert_generated, manual_review_triggered, policy_decision]
+    mediators: [external_send, external_share, disclosure_surface, external_boundary_crossed, sensitive_payload_exposed]
+    colliders: [alert_generated, manual_review_triggered]
+    negative_controls: [cosmetic_metadata_change, harm_operational_failure]
+    alternative_explanations: [confounding_via_resource_sensitivity, confounding_via_attachment_present, confounding_via_environment]
+    notes: Explicit mini-DAG for external leakage; do not adjust for disclosure or detection nodes.
+  harm_data_loss:
+    path_id: destructive_mutation
+    treatment_node: rollback_available
+    contrast_key: rollback_available
+    treated_value: false
+    control_value: true
+    outcome_node: harm_data_loss
+    preferred_stratum_keys: [action_family, environment, resource_sensitivity, approval_present, blast_radius]
+    adjust_for: [action_family, environment, resource_sensitivity, approval_present, blast_radius]
+    avoid: [delete_resource, destructive_write, data_mutation, recovery_gap, rollback_failure, incident_investigated, policy_decision]
+    mediators: [data_mutation, recovery_gap, rollback_failure]
+    colliders: [incident_investigated]
+    negative_controls: [dry_run_flag, harm_policy_bypass]
+    alternative_explanations: [confounding_via_blast_radius, confounding_via_resource_sensitivity, confounding_via_environment]
+    notes: Explicit mini-DAG for destructive mutation with recoverability separated from mutation itself.
+  harm_operational_failure:
+    path_id: operational_failure
+    treatment_node: novel_action
+    contrast_key: novel_action
+    treated_value: true
+    control_value: false
+    outcome_node: harm_operational_failure
+    preferred_stratum_keys: [action_family, environment, approval_present, blast_radius, service_criticality]
+    adjust_for: [action_family, environment, approval_present, blast_radius, service_criticality]
+    avoid: [configuration_change, service_change, change_complexity, service_instability, rollback_delay, manual_review_triggered, policy_decision]
+    mediators: [change_complexity, service_instability, rollback_delay]
+    colliders: [manual_review_triggered]
+    negative_controls: [dry_run_flag, harm_policy_bypass]
+    alternative_explanations: [regime_shift_explanation, confounding_via_blast_radius, confounding_via_service_criticality]
+    notes: Explicit mini-DAG for operational failure; novelty should be compared within similar service and scope strata.
+  harm_policy_bypass:
+    path_id: policy_bypass
+    treatment_node: approval_present
+    contrast_key: approval_present
+    treated_value: false
+    control_value: true
+    outcome_node: harm_policy_bypass
+    preferred_stratum_keys: [action_family, environment, user_role]
+    adjust_for: [action_family, environment, user_role]
+    avoid: [bypass_control, suppress_review, governance_bypass, manual_review_triggered, policy_decision]
+    mediators: [governance_bypass]
+    colliders: [manual_review_triggered]
+    negative_controls: [dry_run_flag]
+    alternative_explanations: [confounding_via_user_role]

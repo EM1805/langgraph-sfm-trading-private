@@ -1,0 +1,15 @@
+# Agent-oriented Discovery family mapping.
+feature_families:
+  workload: [context_load, ambiguity, latency, queue, backlog]
+  memory: [memory, retrieval, cache]
+  tooling: [tool_call, tool_retry, tool]
+  governance: [approval, policy_override, guardrail, review]
+  change_risk: [novel_action, blast_radius, rollback, environment_risk]
+  safety: [harm, recovery, incident]
+
+action_families:
+  tooling: [reduce_tool_retry, optimize_tool_usage, stabilize_tool_calls]
+  governance: [enable_guardrails, require_approval, reduce_policy_override]
+  change_risk: [reduce_novel_actions, reduce_blast_radius, improve_rollback]
+  memory: [improve_memory_hits, strengthen_retrieval]
+  workload: [reduce_context_load, reduce_latency]

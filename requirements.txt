@@ -1,0 +1,9 @@
+gradio>=5.33,<6
+langgraph>=0.2
+ccxt>=4,<5
+google-genai>=1.0,<2
+python-dotenv>=1,<2
+numpy>=1.26,<2.4
+pandas>=2.2.3,<2.4
+PyYAML>=6.0,<7
+pyaudioop>=0.2.0

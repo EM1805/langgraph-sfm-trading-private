@@ -1,0 +1,59 @@
+version: 2
+canonical_variables:
+  date:
+    raw_aliases: [date, dt, timestamp, event_time]
+    type: time_index
+  harm_event:
+    raw_aliases: [harm_event, incident_detected, observed_harms, outcome]
+    type: outcome
+  context_load:
+    raw_aliases: [context_load, workload, prompt_load, task_complexity]
+    type: treatment_candidate
+  ambiguity_score:
+    raw_aliases: [ambiguity_score, ambiguity, uncertainty_score]
+    type: treatment_candidate
+  environment_risk:
+    raw_aliases: [environment_risk, env_risk, production_environment, service_criticality]
+    type: treatment_candidate
+  memory_hit_rate:
+    raw_aliases: [memory_hit_rate, memory_hits, retrieval_hit_rate]
+    type: treatment_candidate
+  tool_call_rate:
+    raw_aliases: [tool_call_rate, tool_calls, tool_usage_rate]
+    type: treatment_candidate
+  tool_retry_rate:
+    raw_aliases: [tool_retry_rate, retries, tool_retries]
+    type: treatment_candidate
+  approval_present:
+    raw_aliases: [approval_present, approved, human_approval]
+    type: governance_control
+  rollback_available:
+    raw_aliases: [rollback_available, rollback_ready, reversible]
+    type: governance_control
+  novel_action_rate:
+    raw_aliases: [novel_action_rate, novel_action, novelty_rate]
+    type: treatment_candidate
+  policy_override_attempt_rate:
+    raw_aliases: [policy_override_attempt_rate, policy_override, override_attempt_rate]
+    type: treatment_candidate
+  guardrail_trigger_rate:
+    raw_aliases: [guardrail_trigger_rate, guardrail_triggers, safety_trigger_rate]
+    type: treatment_candidate
+  latency_ms:
+    raw_aliases: [latency_ms, latency, response_latency_ms]
+    type: treatment_candidate
+  blast_radius:
+    raw_aliases: [blast_radius, recipient_scope, resource_sensitivity]
+    type: treatment_candidate
+  recovery_time_score:
+    raw_aliases: [recovery_time_score, recovery_score, recovery_gap]
+    type: treatment_candidate
+  negative_control_outcome:
+    raw_aliases: [negative_control_outcome, negctrl, placebo_outcome]
+    type: negative_control_outcome
+  action_active:
+    raw_aliases: [action_active, treatment_active, intervention_active]
+    type: treatment_indicator
+  outcome_prev:
+    raw_aliases: [outcome_prev, harm_event_prev, target_prev]
+    type: lagged_outcome

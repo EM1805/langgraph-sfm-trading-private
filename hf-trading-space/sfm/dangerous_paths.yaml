@@ -1,0 +1,196 @@
+paths:
+  external_data_leakage:
+    description: Sensitive data may leave trusted boundaries.
+    graph_harm: harm_leakage
+    triggers_any:
+      - external_send
+      - external_share
+    required_context_any:
+      - recipient_external
+      - share_scope_external
+    amplifiers:
+      - sensitive_resource
+      - attachment_present
+      - untrusted_recipient
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - sensitive_resource
+      - attachment_present
+
+  privilege_escalation:
+    description: Capability or permissions change can create unauthorized access.
+    graph_harm: harm_unauthorized_access
+    triggers_any:
+      - permission_change
+      - credential_rotation
+    amplifiers:
+      - production_environment
+      - high_blast_radius
+    severity: high
+    reversibility: medium
+    default_evidence_strength: structural
+
+  destructive_mutation:
+    description: Destructive writes can create irreversible data loss.
+    graph_harm: harm_data_loss
+    triggers_any:
+      - destructive_write
+      - delete_resource
+    amplifiers:
+      - sensitive_resource
+      - rollback_unavailable
+      - production_environment
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - rollback_unavailable
+
+  policy_bypass:
+    description: Actions that explicitly bypass approval or policy guardrails.
+    graph_harm: harm_policy_bypass
+    triggers_any:
+      - bypass_control
+      - suppress_review
+    amplifiers:
+      - production_environment
+      - sensitive_resource
+    severity: high
+    reversibility: low
+    default_evidence_strength: structural
+
+  operational_failure:
+    description: Novel or high blast radius action in production may cause operational instability.
+    graph_harm: harm_operational_failure
+    triggers_any:
+      - service_change
+      - configuration_change
+    amplifiers:
+      - novel_action
+      - production_environment
+      - high_blast_radius
+    severity: medium
+    reversibility: medium
+    default_evidence_strength: weak
+
+  financial_transfer_loss:
+    description: Live money movement may create irreversible financial loss or fraud exposure.
+    graph_harm: harm_financial_loss
+    triggers_any:
+      - financial_transfer
+      - account_withdrawal
+      - payment_charge
+      - payment_refund
+      - money_movement
+    required_context_any:
+      - financial_action
+      - real_money
+    amplifiers:
+      - production_environment
+      - high_notional_amount
+      - sensitive_resource
+      - approval_missing
+      - rollback_unavailable
+      - external_counterparty
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - approval_missing
+      - rollback_unavailable
+
+  live_trade_execution:
+    description: Live trading execution can create financial loss, slippage, tax/accounting impact, and compliance risk.
+    graph_harm: harm_trading_loss
+    triggers_any:
+      - trade_execution
+      - market_order
+      - limit_order
+      - portfolio_rebalance
+      - position_close
+    required_context_any:
+      - trading_action
+      - live_trading
+    amplifiers:
+      - real_money
+      - high_notional_amount
+      - approval_missing
+      - risk_limits_missing
+      - rollback_unavailable
+      - production_environment
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - approval_missing
+      - risk_limits_missing
+
+  leveraged_trading_exposure:
+    description: Leveraged or margin trading can cause losses beyond the initial position and liquidation risk.
+    graph_harm: harm_leveraged_financial_loss
+    triggers_any:
+      - leveraged_trade
+      - margin_exposure
+    required_context_any:
+      - trading_action
+      - leverage_used
+      - margin_used
+    amplifiers:
+      - real_money
+      - live_trading
+      - high_notional_amount
+      - approval_missing
+      - risk_limits_missing
+      - rollback_unavailable
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - approval_missing
+      - risk_limits_missing
+
+  financial_credential_exposure:
+    description: Brokerage, banking, or payment credentials can enable unauthorized money movement or trading.
+    graph_harm: harm_financial_credential_exposure
+    triggers_any:
+      - brokerage_access
+      - secret_access
+      - credential_exposure
+    required_context_any:
+      - financial_action
+      - trading_action
+      - sensitive_resource
+    amplifiers:
+      - production_environment
+      - approval_missing
+      - untrusted_recipient
+      - high_blast_radius
+    severity: critical
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - approval_missing
+      - untrusted_recipient
+
+  trading_policy_bypass:
+    description: Changes to risk limits or approval/risk policy can weaken trading safeguards.
+    graph_harm: harm_policy_bypass
+    triggers_any:
+      - risk_limit_change
+      - policy_change
+      - bypass_control
+      - suppress_review
+    required_context_any:
+      - trading_action
+      - financial_action
+    amplifiers:
+      - approval_missing
+      - production_environment
+      - high_blast_radius
+    severity: high
+    reversibility: low
+    default_evidence_strength: structural
+    hard_block_if:
+      - approval_missing

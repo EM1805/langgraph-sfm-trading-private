@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langgraph-sfm"
+version = "0.2.4"
+description = "Causal intent monitoring and safety gates for LangGraph agents using bundled Structural Final Models."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = "MIT"
+authors = [
+  { name = "Emiliano Muharremi" }
+]
+keywords = [
+  "langgraph",
+  "langchain",
+  "agent-monitoring",
+  "ai-safety",
+  "causal-inference",
+  "intent-detection",
+  "structural-final-models",
+  "observability",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = [
+  "numpy>=1.26,<2.4",
+  "pandas>=2.2.3,<2.4",
+  "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+langgraph = ["langgraph>=0.2"]
+trading = ["langgraph>=0.2", "ccxt>=4,<5", "python-dotenv>=1,<2"]
+llm = ["openai>=1.0,<3", "google-genai>=1.0,<2"]
+test = ["pytest>=8,<9"]
+dev = ["pytest>=8,<9", "build>=1.2", "twine>=5"]
+
+[project.scripts]
+langgraph-sfm-demo = "sfm_langgraph.cli:main"
+langgraph-sfm-trading-guard = "sfm_langgraph.trading.cli:main"
+langgraph-sfm-trading-runner = "sfm_langgraph.trading.autonomous_cli:main"
+
+[project.urls]
+Homepage = "https://github.com/EM1805/langgraph-sfm"
+Repository = "https://github.com/EM1805/langgraph-sfm"
+Issues = "https://github.com/EM1805/langgraph-sfm/issues"
+
+[tool.setuptools.packages.find]
+include = ["sfm*", "sfm_langgraph*"]
+
+[tool.setuptools.package-data]
+"sfm" = ["*.yaml", "*.jsonl", "*.csv", "py.typed"]
+"sfm.data" = ["*.csv"]
+"sfm_langgraph" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
