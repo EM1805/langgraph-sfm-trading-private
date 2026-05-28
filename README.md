@@ -9,7 +9,7 @@ python_version: 3.12
 app_file: app.py
 pinned: false
 license: mit
-short_description: Private LangGraph-SFM trading control panel with Gemini strategy planning and SFM safety gates.
+short_description: SFM trading guard with Gemini and Binance
 tags:
   - langgraph
   - ai-agents
